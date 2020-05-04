@@ -1,0 +1,93 @@
+Cp1 1. Forget to set the present bit of interrupt hagein the idt cause page fault
+	2. In cp1, in the part roc init, I found that we cannot use anything to test rtc,
+	    the question is that I use ‘outb’ function wrong, I mistakenly exchange the 
+	  first parameter and the second parameter. So the rtc will never be active. 
+	 this bug is helped by one TA.
+Cp2 1. some function of terminal not work. control + L work but not change the  	cursor’s position.
+	2. Keyboard not come to the next line when we type more than 80 			characters.
+	3.keyboard not work: the keyboard handler is wrong. It should return after  some key is handled, but forget to return cause when type control +L, L is print on the screen.
+	4. One bug in cp4 is in function ‘read_dentry_by_name’, at first I didn’t 
+	consider the length of the filename, then I limit the length to compare to 32,
+	if we do not handle the max length in ‘read_dentry_by_name’, there will be 
+	a smile face at the last chapter of the very large file. 
+Cp3 1. halt has bug. When halt from the the first process, meet page fault, it is 	because we wrongly handle the process number when exit from the first 
+	shell. 
+	2. The program meet page fault when we type a lot of things and type enter, not fixed until cp4.
+	3. Terminal read and keyboard has bug when running in the shell:
+		when backspace, it will print things in terminal read on the next line. 
+		this is cause by the inclement of the keyboard is not good, fixed after 
+		some magic changes. We rewrite the keyboard and terminal in cp4.
+	4. A bug in cp3 is that when typing the second ‘ls’ command, there will be
+		one character miss at the first place of the line, at first our group think 
+		the problem is in terminal_read, we spend a long time to try to fix it. At
+		last we find that the problem is in the function ‘scroll_up’, when we
+		reach the last line of the screen, we figure the video memory wrong, so
+		there always be one character missing in each line.
+	5. compile error, we cannot compile at first because the code we write incp2
+		is different satisfy with the system call in cp3, the function interface 
+               In cp2 is much different than in cp3, so we change them to fix.
+cp4
+	in this checkpoint we don’t have problems, only one concept is wrong. In 
+		demo the TA told us that when the filename is larger than 32, the 
+		system should directly call an error to us, don’t handle the filename 			whose length is larger than 32. 
+cp5
+1. One Enter Flag cannot be used by three terminal, cause terminal not work.
+ 2. Writer things into keyboard buffer but not into terminal buffer.
+3 . Use wrong index in terminal struct, should use buffer_index but we use process index. Cause general protection occur.
+4. When switch context, keyboard write into video buffer instead of video memory.
+5. Meet page fault when run the second process in the same terminal. Caused by not update terminal struct when call halt().
+
+
+
+MP3
+1. Bug: Undefined reference error
+How/What: We were keep getting undefined reference error even though we had all the necessary #include .h files 
+for connections, and had all the necessary variables defined. 
+After: We realized that one of our teammates did git rm **.c file by accident and 
+did not re-add while we tested/ “make”ed the files. We put the **.c file from our 
+gitlab and saved did make again to compile. We could get rid of the undefined reference error. 
+
+2. Bug: Wrongly used extern error
+How/What: We were getting errors on some variables because it was declared with the keyword “extern”. 
+After: We visited office hours to solve this problem and realized that we should only 
+use “extern” on the function definition so we removed all the variables with “extern” keyword 
+on their definition and solved problem. 
+
+3. Bug: Page fault error on our terminal buffer
+How/What: While debugging for the terminal, we were getting page faults for certain inputs 
+from the keyboard. (Such as entering a lot of letters or keep pressing Enter key.) 
+After: We realized that we were having a wrong limit set for our buffer which made 
+inappropriate access to the memory address. So we set our constant responsible for 
+the barriers again and solved this error. 
+4. Bug: Looping in the terminal error
+How/What: While testing for the terminal we were having letters/ commands 
+looping infinitely inside the terminal booted.
+After: We re-ordered lines inside init_terminal and re-organized 
+what’s going inside the loop at our init_terminal function and the looping error went away. 
+
+5. Bug: Return error
+How/What: We got an error for the function not having appropriate return at the end for some excess. 
+After: we added appropriate return statement for every end of our function to prevent this error. 
+
+6. Bug: No more process error
+How/What: Inside the terminal, while testing, we did not have anything to stop 
+process from running out so our terminal printed out no more process error. 
+After: we set a limit to prevent process from reaching the state of running out. 
+Segment not present error
+How/What: We were getting a segment not present error when using gdb. 
+After: We googled about it and read information about the segment not present error 
+in the Intel manual to figure out what was wrong and fixed that error. 
+The problem was inside setting the IDT, we had an error when setting the “present” bit for calling the pit. 
+
+7. Bug: No break error
+How/What: Inside the syscall.c function within 3.paging block we were getting page fault. 
+After: We realized that we did not put break within if block at the code below 
+and we could get rid of the page fault after putting the “break;” at if parenthesis. 
+if (process_id_array[j]==0
+{
+	next_process_number = j;
+	process_id_array[j]=1;
+	terminal[curren_terminal_executing].index++;
+	terminal[curren_terminal_executing].index++;
+	terminal[curren_terminal_executing].process_in_terminal[terminal][curren_terminal_executing].index = next_process_number;
+}
